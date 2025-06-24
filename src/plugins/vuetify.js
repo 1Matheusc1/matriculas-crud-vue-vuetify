@@ -1,6 +1,6 @@
 // src/plugins/vuetify.js
 
-// Importa os estilos principais do Vuetify
+// Importa os estilos principais do Vuetify...
 import "vuetify/styles";
 
 // Cria a instância do Vuetify

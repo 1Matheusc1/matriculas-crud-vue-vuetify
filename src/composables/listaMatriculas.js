@@ -1,9 +1,10 @@
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import api from "@/services/api";
 
 export default function useListaMatriculas() {
   const router = useRouter();
+  const route = useRoute(); // 👈 adicionado
 
   const matriculas = ref([]);
   const loading = ref(false);
@@ -55,6 +56,9 @@ export default function useListaMatriculas() {
   };
 
   onMounted(carregar);
+
+  // 👇 atualiza a lista sempre que a rota mudar
+  watch(() => route.fullPath, carregar);
 
   return {
     headers,

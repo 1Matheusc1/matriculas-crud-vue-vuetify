@@ -10,11 +10,19 @@ export default function useLogin() {
   const formValid = ref(true);
   const loginError = ref(false);
   const showPassword = ref(false);
+  const forgotDialog = ref(false);
+  const forgotEmail = ref("");
+  const forgotLoading = ref(false);
+  const forgotSuccess = ref(false);
+  const forgotError = ref(false);
   const router = useRouter();
 
+  // Regras de validação
   const rules = {
     required: (v) => !!v || "Campo obrigatório",
     email: (v) => /.+@.+\..+/.test(v) || "E-mail inválido",
+    passwordMin: (v) =>
+      (v && v.length >= 6) || "A senha deve ter no mínimo 6 caracteres",
   };
 
   onMounted(() => {
@@ -30,7 +38,28 @@ export default function useLogin() {
   };
 
   const esqueciSenha = () => {
-    alert("Redirecionar para recuperação de senha (em construção)");
+    forgotDialog.value = true;
+    forgotEmail.value = "";
+    forgotError.value = false;
+    forgotSuccess.value = false;
+  };
+
+  const enviarRecuperacao = async () => {
+    forgotError.value = false;
+    forgotSuccess.value = false;
+    forgotLoading.value = true;
+
+    try {
+      await api.post("/auth/forgot-password", {
+        email: forgotEmail.value,
+      });
+
+      forgotSuccess.value = true;
+    } catch (err) {
+      forgotError.value = true;
+    } finally {
+      forgotLoading.value = false;
+    }
   };
 
   const login = async () => {
@@ -69,6 +98,12 @@ export default function useLogin() {
     showPassword,
     togglePassword,
     esqueciSenha,
+    forgotDialog,
+    forgotEmail,
+    forgotLoading,
+    forgotSuccess,
+    forgotError,
+    enviarRecuperacao,
     login,
     rules,
   };

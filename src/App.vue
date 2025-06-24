@@ -1,8 +1,8 @@
 <template>
   <v-app>
     <!-- Barra superior -->
-    <v-app-bar color="primary" dark>
-      <v-app-bar-nav-icon @click="drawer = !drawer" />
+    <v-app-bar color="primary" dark app>
+      <v-app-bar-nav-icon @click="toggleDrawer" />
       <v-toolbar-title class="d-flex align-center">
         <v-icon class="mr-2">mdi-school</v-icon>
         Sistema de Matrículas
@@ -10,27 +10,37 @@
 
       <v-spacer />
 
-      <!-- Avatar com transição -->
-      <v-scale-transition>
-        <v-btn icon>
-          <v-avatar size="32">
-            <v-icon>mdi-account-circle</v-icon>
-          </v-avatar>
-        </v-btn>
-      </v-scale-transition>
+      <!-- Avatar com menu -->
+      <v-menu location="bottom end">
+        <template #activator="{ props }">
+          <v-btn icon v-bind="props">
+            <v-avatar size="32">
+              <v-icon>mdi-account-circle</v-icon>
+            </v-avatar>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item @click="logout">
+            <v-list-item-title>Sair</v-list-item-title>
+            <v-list-item-icon>
+              <v-icon>mdi-logout</v-icon>
+            </v-list-item-icon>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
 
-    <!-- Drawer com transição -->
+    <!-- Menu lateral (Drawer) -->
     <v-navigation-drawer
       v-model="drawer"
       :permanent="!isMobile"
       :temporary="isMobile"
       app
     >
-      <v-list nav dense>
+      <v-list nav dense active-color="primary">
         <v-list-subheader class="text-grey">Menu Principal</v-list-subheader>
 
-        <v-list-item to="/" title="Login" prepend-icon="mdi-login" />
+        <v-list-item to="/" title="Conecte-se" prepend-icon="mdi-login" />
         <v-list-item
           to="/listar"
           title="Listar Matrículas"
@@ -53,7 +63,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <!-- Conteúdo principal com transição -->
+    <!-- Área principal -->
     <v-main>
       <v-fade-transition mode="out-in">
         <router-view />
@@ -63,19 +73,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 
 const drawer = ref(false);
+const isMobile = ref(window.innerWidth < 960);
 const router = useRouter();
-const isMobile = ref(false);
+
+// Atualiza se for mobile em resize
+const handleResize = () => {
+  isMobile.value = window.innerWidth < 960;
+};
 
 onMounted(() => {
-  isMobile.value = window.innerWidth < 960;
-  window.addEventListener("resize", () => {
-    isMobile.value = window.innerWidth < 960;
-  });
+  window.addEventListener("resize", handleResize);
 });
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", handleResize);
+});
+
+const toggleDrawer = () => {
+  drawer.value = !drawer.value;
+};
 
 const logout = () => {
   localStorage.removeItem("token");
